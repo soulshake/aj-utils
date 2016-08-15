@@ -1,0 +1,8 @@
+#!/bin/bash
+
+col="$1"
+echo "Searching for columns like '$col'"
+
+/home/aj/git/tiller/murica/mysql.sh local -e "SELECT DISTINCT TABLE_NAME, COLUMN_NAME
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE COLUMN_NAME LIKE '%${col}%'"

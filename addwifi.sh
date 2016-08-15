@@ -13,6 +13,7 @@ show)
 edit)
     shift
     echo "Editing down $1"
+    nmtui edit
     ;;
 down)
     shift
@@ -33,6 +34,7 @@ tui)
     nmtui
     ;;
 *)
+    # nmcli c up w-${SSID}
     SSID=$1
     PSK=$2
     if [ -z "$SSID" ]; then

@@ -1,14 +1,25 @@
 #!/bin/bash
 # https://stackoverflow.com/questions/192319/how-do-i-know-the-script-file-name-in-a-bash-script
 
-echo
-echo "# arguments called with ---->  ${@}     "
-echo "# \$1 ---------------------->  $1       "
-echo "# \$2 ---------------------->  $2       "
-echo "# path to me --------------->  ${0}     "
-echo "# parent path -------------->  ${0%/*}  "
-echo "# my name ------------------>  ${0##*/} "
-echo
+
+logger
+logger "# arguments called with ---->  ${@}     "
+logger "# \$1 ----------------------->  $1       "
+logger "# \$2 ----------------------->  $2       "
+logger "# path to me --------------->  ${0}     "
+logger "# parent path -------------->  ${0%/*}  "
+logger "# my name ------------------>  ${0##*/} "
+logger "# pwd ---------------------->  $(pwd)   "
+#logger "# PWD ---------------------->  $PWD     "
+logger "# BASH_SOURCE -------------->  $BASH_SOURCE"
+#logger "# BASH_COMMAND ------------->  $BASH_COMMAND"
+logger "# PROMPT_COMMAND ------------->  $PROMPT_COMMAND"
+#logger "# PS1 ---------------------->  $PS1     "
+# logger "# whoami ------------------->  $(whoami)"
+logger "# tty ---------------------->  $(tty)   "
+# logger "# echo \$? ------------------>  $(echo $?)   "
+logger "# cat whereami --------------> $(cat /tmp/whereami)"
+logger
 exit
 
 # ------------- CALLED ------------- #

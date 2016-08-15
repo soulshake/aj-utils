@@ -1,0 +1,33 @@
+   1>filename
+      # Redirect stdout to file "filename."
+   1>>filename
+      # Redirect and append stdout to file "filename."
+   2>filename
+      # Redirect stderr to file "filename."
+   2>>filename
+      # Redirect and append stderr to file "filename."
+   &>filename
+      # Redirect both stdout and stderr to file "filename."
+      # This operator is now functional, as of Bash 4, final release.
+
+   2>&1
+      # Redirects stderr to stdout.
+      # Error messages get sent to same place as standard output.
+        >>filename 2>&1
+            bad_command >>filename 2>&1
+            # Appends both stdout and stderr to the file "filename" ...
+        2>&1 | [command(s)]
+            bad_command 2>&1 | awk '{print $5}'   # found
+            # Sends stderr through a pipe.
+            # |& was added to Bash 4 as an abbreviation for 2>&1 |.
+
+    2>/dev/null
+        # Redirects stderr to /dev/null
+        #(Minor side-note: some will suggest 2>&- is the same 2>/dev/null but shorter – this is untrue. 2>&- closes FD 2 which causes an error in the program when it tries to write to stderr, which is very different from successfully writing to it and discarding the output (and dangerous!))
+
+    >&2 echo "error"
+        # echos "error" to stderr
+
+    # send both stdout and stderr to /dev/null
+    if ! [[ $(type -a git &>/dev/null) ]]; then return; fi
+
