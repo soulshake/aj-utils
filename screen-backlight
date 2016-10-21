@@ -2,11 +2,13 @@
 set -e
 
 #	screen-backlight
-#		For when you are running leeenux on a Mac and it needs some help
+#		Adjust the screen brightness of all monitors.
 #
 #	Usage:
 #		screen-backlight	{up,down,max,min}
 #
+#   Adapted from:
+#       https://github.com/jessfraz/dotfiles/blob/master/bin/screen-backlight
 
 
 if [ $UID -ne 0 ]; then
