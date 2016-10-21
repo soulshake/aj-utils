@@ -3,6 +3,7 @@
 
 enumerate_aws_envvars() {
     AWS_ENVVARS="
+        AWS
         AWS_DEFAULT_PROFILE
         AWS_DEFAULT_REGION
         AWS_S3_BUCKET
@@ -22,11 +23,7 @@ unset_envvars() {
         if [ -z $envvar ]; then
             echo "$envvar not set"
         else
-            # srsly, why the F doesn't this work.
-            echo "Unsetting $envvar (${!envvar})"
-            #env -u "$envvar"
             unset "$envvar"
-            echo ${!envvar}
         fi
     done
 }
