@@ -22,13 +22,12 @@ MONITORS=$(xrandr --listactivemonitors \
             | grep -v eDP \
             |  awk '{print $2}' \
             | cut -d "+" -f 2)
+INCREMENT=100
+MIN=1
 
 for BLFILE in "$BLFILES"; do
     BACKLIGHT=$(cat "$BLFILE")
-    INCREMENT=55
-    SET_VALUE=0
     BLDIR=$(dirname $BLFILE)
-    MIN=1
     MAX=$(cat "$BLDIR/max_brightness")
 
     echo "Current: $BACKLIGHT"
@@ -41,7 +40,6 @@ for BLFILE in "$BLFILES"; do
             if [ "$TOTAL" -gt "$MAX" ]; then
                 TOTAL="$MAX"
             fi
-            SET_VALUE=1
             ;;
         down)
             TOTAL=`expr $BACKLIGHT - $INCREMENT`
@@ -49,15 +47,12 @@ for BLFILE in "$BLFILES"; do
                 echo "Can't decrease further"
                 exit 1
             fi
-            SET_VALUE=1
             ;;
         max)
             TOTAL="$MAX"
-            SET_VALUE=1
             ;;
         min)
             TOTAL="$MIN"
-            SET_VALUE=1
             ;;
         *)
             echo "Usage: screen-backlight up|down|max|min"
@@ -65,14 +60,12 @@ for BLFILE in "$BLFILES"; do
             ;;
     esac
 
-    # If conditions are such that we should actually make the change, then do so now
-    if [ "$SET_VALUE" -eq "1" ]; then
-        echo "Screen brightness will be set to: $TOTAL"
-        echo "$TOTAL" > $BLFILE
-        for MONITOR in "$MONITORS"; do
-            [ -n "$EX_TOTAL" ] && xrandr --output "$MONITOR" --brightness "$EX_TOTAL"
-        done
-    fi
+    # Write new screen brightness level to the appropriate file.
+    echo "Screen brightness will be set to: $TOTAL"
+    echo "$TOTAL" > $BLFILE
+    for MONITOR in "$MONITORS"; do
+        [ -n "$EX_TOTAL" ] && xrandr --output "$MONITOR" --brightness "$EX_TOTAL"
+    done
 
     # If we have any external monitors, set their brightness too.
     # Reasonable brightness of external monitor varies from about 0.5 to 1.5.
