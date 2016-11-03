@@ -63,6 +63,7 @@ for BLFILE in "$BLFILES"; do
     # Write new screen brightness level to the appropriate file.
     echo "Screen brightness will be set to: $TOTAL"
     echo "$TOTAL" > $BLFILE
+    EX_TOTAL=$(python -c "print format($TOTAL / $MAX.0 + 0.5, '.1f')")
     for MONITOR in "$MONITORS"; do
         [ -n "$EX_TOTAL" ] && xrandr --output "$MONITOR" --brightness "$EX_TOTAL"
     done
@@ -71,7 +72,6 @@ for BLFILE in "$BLFILES"; do
     # Reasonable brightness of external monitor varies from about 0.5 to 1.5.
     # Set it to a level comparable to the current laptop brightness.
     if [ -n "$MONITORS" ] && [ -n "$TOTAL" ] && [ -n "$MAX" ]; then
-        EX_TOTAL=$(python -c "print format($TOTAL / $MAX.0 + 0.5, '.1f')")
         echo "External monitor brightness will be set to: $EX_TOTAL"
     else
         echo "No external monitor detected, or TOTAL is invalid ($TOTAL), or MAX is invalid ($MAX)"
