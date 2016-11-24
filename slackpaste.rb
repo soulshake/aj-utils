@@ -21,7 +21,7 @@ end
 require 'pry'
 #binding.pry
 
-last_author = "???"
+last_author = "{MAXLEN_REPLACE}"
 
 lines = input.
       split(/\n/).
@@ -50,7 +50,7 @@ lines = lines.map(&:strip).map do |line|
     end
 
   else
-    words = [last_author, line]
+    words = ["{MAXLEN_REPLACE}", line]
   end
 
   if words.size == 2
@@ -59,12 +59,12 @@ lines = lines.map(&:strip).map do |line|
   elsif words.size == 1
     message = words[0]
   end
-  message = message.gsub("\n", "\n" + "".ljust(maxlen + 2))
+  message = message.gsub("\n", "\n" + "{MAXLEN_REPLACE}  ") #"".ljust(maxlen + 2))
   maxlen = [maxlen, last_author.length].max
   {:author=>last_author, :message=>message}
 end
 
-lines = lines.reject{|line| line.nil?}
+#lines = lines.reject{|line| line.nil?}
 
 if lines.compact.empty?
   $stderr.puts "Bailing!"
@@ -76,9 +76,10 @@ paste = lines.map {|line|
   next if line.nil? || line.empty?
   formatted = FORMAT.dup
   line.each do |k, v|
-    formatted = formatted.gsub(":", " ") if v == ""
     v = line[k].rjust(maxlen) if k == :author
     formatted = formatted.gsub(/{{#{k}}}/, v)
+    formatted = formatted.gsub("{MAXLEN_REPLACE}", "".rjust(maxlen))
+    formatted = formatted.gsub(":", " ") if ["{MAXLEN_REPLACE}", ""].include?(v)
   end
   formatted
 }.join("\n")
