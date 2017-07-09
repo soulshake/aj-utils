@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+declare    red=$(tput setaf 1) blue=$(tput setaf 4) normal=$(tput sgr0) PROG
+
+#echo
+#echo "${blue}Consider what happens if you were trying to exec the script or rm etc?${normal}"
+#echo '    : ${PROG:=$(basename ${BASH_SOURCE})} <-- without quotes'
+#: ${PROG:=$(basename ${BASH_SOURCE})}
+#echo "echo \$PROG=${red}$PROG${normal}"
+#
+#unset PROG
+
+echo
+echo '    : ${PROG:=$(basename "${BASH_SOURCE}")}'"${blue} <--- with quotes!${normal}"
+: ${PROG:=$(basename "${BASH_SOURCE}")}
+echo "echo \$PROG=${red}$PROG${normal}"
+
+unset PROG
+
+echo
+echo '    PROG=${PROG:=$(basename "${BASH_SOURCE}")}'"${blue} <-- with quotes and without true/noop command construct${normal}"
+PROG=${PROG:=$(basename "${BASH_SOURCE}")}
+echo "echo \$PROG=${red}$PROG${normal}"
+
+unset PROG
+
+#echo
+#echo
+#echo "${blue}    Using the true/noop construct is slow (and won't make sense to newbies)${normal}"
+#time for ((i=0;i<10000;i++)) ; do
+    #: ${PROG:=$(basename ${BASH_SOURCE})}
+#done
+
+#unset PROG
+
+echo
+echo "${blue}    Just assigning the var is faster (and clearer to newbies)${normal}"
+time for ((i=0;i<10000;i++)) ; do
+    PROG=${PROG:=$(basename "${BASH_SOURCE}")}
+done
+
+exit 0

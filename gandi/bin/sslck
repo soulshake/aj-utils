@@ -1,0 +1,5 @@
+#!/bin/bash
+
+#check the certificate SSL 
+
+openssl x509 -in $1 -text -noout

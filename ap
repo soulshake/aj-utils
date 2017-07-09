@@ -1,0 +1,19 @@
+#!/bin/sh
+# Access point hackery
+# 
+# then you setup (e.g. with nmtui) a connection (called AP-Tree here) that should have:
+# - infrastructure mode
+# - whichever security options you want
+# - a fixed IP address of 192.168.69.254/23
+
+# then you execute the script, and Bob should be your uncle
+# the machine should itself have internet access, either through a secondary WiFi interface, or through Ethernet, or through USB, or through quantum entanglement adapter
+# the MASQUERADE rule will pick things up automatically
+# and this setup is ghetto.af but it should work
+
+sudo nmcli c up AP-Tree
+SUBNET=192.168.68/23
+DHCP_A=192.168.68.1
+DHCP_Z=192.168.69.249
+sudo iptables -t nat -A POSTROUTING -s $SUBNET ! -d $SUBNET -j MASQUERADE
+sudo dnsmasq --no-daemon --interface=wlan0 --dhcp-range=$DHCP_A,$DHCP_Z,1h

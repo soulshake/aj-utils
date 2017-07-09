@@ -1,0 +1,7 @@
+#!/bin/bash
+
+#check the certificate SSL 
+#openssl s_client -connect $1:443 -showcerts
+
+# Check the CSR
+openssl req -in $1 -text -noout

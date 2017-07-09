@@ -1,0 +1,5 @@
+#!/bin/bash
+
+#check the certificate SSL  PRIVATE KEY
+
+openssl rsa -in $1 -check -noout

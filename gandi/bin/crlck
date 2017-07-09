@@ -1,0 +1,1 @@
+wget -O -  http://crl.gandi.net/GandiStandardSSLCA.crl | openssl crl -inform DER -text 

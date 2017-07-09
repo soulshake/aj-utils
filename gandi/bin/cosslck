@@ -1,0 +1,5 @@
+#!/bin/bash
+
+#check the certificate SSL when connecting to a website
+
+openssl s_client -connect $1:443 -showcerts -CApath /etc/ssl/certs

@@ -1,0 +1,48 @@
+#!/bin/bash
+set -e
+
+#	volume
+#		For adjusting volume up or down
+#
+#	Usage:
+#		volume  {up,down,total,off}
+#
+# Programs for controlling volume:
+# - pavucontrol
+# - amixer
+# - pactl
+# - alsamixer ?
+
+
+#if [ $UID -ne 0 ]; then
+	#echo "Please run this program as superuser"
+	#exit 1
+#fi
+
+#BLFILE="$BLDIR/brightness"
+#BACKLIGHT=$(cat $BLFILE)
+INCREMENT=15
+#SET_VALUE=0
+#MAX=$(cat "$BLDIR/max_brightness")
+
+case $1 in
+
+	up)
+        amixer set Master ${INCREMENT}%+
+        pactl set-sink-volume @DEFAULT_SINK@ +${INCREMENT}%
+		;;
+	down)
+        amixer set Master ${INCREMENT}%-
+        pactl set-sink-volume @DEFAULT_SINK@ -${INCREMENT}%
+		;;
+    mute)
+        amixer set Master 1+ toggle
+        ;;
+	*)
+		echo "Use: screen-backlight up|down"
+		;;
+esac
+
+#if [ $SET_VALUE -eq "1" ]; then
+	#echo $TOTAL > $BLFILE
+#fi

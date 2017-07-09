@@ -1,0 +1,42 @@
+#!/bin/bash
+
+function post_to_slack () {
+  # format message as a code block ```${msg}```
+  #SLACK_MESSAGE="\`\`\`$1\`\`\`"
+  SLACK_MESSAGE="$1"
+  SLACK_URL=$SLACK_NOTIFY_URL #https://hooks.slack.com/services/your-service-identifier-part-here
+  pipe_status=${PIPESTATUS[0]}
+  echo $pipe_status
+  exit
+ 
+  case "$2" in
+    INFO)
+      SLACK_ICON=':slack:'
+      ;;
+    WARNING)
+      SLACK_ICON=':warning:'
+      ;;
+    ERROR)
+      SLACK_ICON=':bangbang:'
+      ;;
+    *)
+      SLACK_ICON=':slack:'
+      ;;
+  esac
+ 
+  #curl -X POST \
+    #--data-urlencode 'payload={"channel": "#general", "username": "webhookbot", "text": "This is posted to #general and comes from a bot named webhookbot.", "icon_emoji": ":ghost:"}'
+
+  echo curl -X POST --data "'payload={\"text\": \"${SLACK_ICON} ${SLACK_MESSAGE}\"}'" ${SLACK_URL}
+
+  #curl -X POST \
+      #-H 'Content-type: application/json' \
+      #--data '{"text": "This is posted to <#general> and comes from *monkey-bot*.", "channel": "#general", "username": "monkey-bot", "icon_emoji": ":monkey_face:"}' \
+      #"$SLACK_NOTIFY_URL"
+      #https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX
+
+
+}
+
+post_to_slack "Hello, World" "INFO"
+exit 0

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+#decrypt private key
+
+openssl rsa -in $1 >> KEY-NOCRYPT.key
+
