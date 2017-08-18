@@ -1,0 +1,7 @@
+#! /bin/bash
+TZFILE=`find /usr/share/zoneinfo -iname $1|head -1`
+if [ -z $TZFILE ] ; then
+    echo nope
+else
+    TZ=$TZFILE date
+fi

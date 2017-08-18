@@ -4,16 +4,19 @@
 enumerate_aws_envvars() {
     AWS_ENVVARS="
         AWS
+        AWS_ACCESS_KEY_ID
+        AWS_DEFAULT_OUTPUT
         AWS_DEFAULT_PROFILE
         AWS_DEFAULT_REGION
+        AWS_INSTANCE_TYPE
+        AWS_LOGIN_URL
+        AWS_PASSWORD
         AWS_S3_BUCKET
         AWS_S3_BUCKET_ENDPOINT
         AWS_S3_URI
-        AWS_ACCESS_KEY_ID
         AWS_SECRET_ACCESS_KEY
-        AWS_INSTANCE_TYPE
+        AWS_USER
         AWS_VPC_ID
-        AWS_DEFAULT_OUTPUT
     "
     echo "$AWS_ENVVARS"
 }
@@ -23,6 +26,7 @@ unset_envvars() {
         if [ -z $envvar ]; then
             echo "$envvar not set"
         else
+            #echo "unset $envvar"
             unset "$envvar"
         fi
     done
