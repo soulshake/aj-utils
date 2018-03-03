@@ -11,6 +11,9 @@ enumerate_aws_envvars() {
         AWS_INSTANCE_TYPE
         AWS_LOGIN_URL
         AWS_PASSWORD
+        AWS_REGION
+        AWS_ACCESS_KEY
+        AWS_SECRET_KEY
         AWS_S3_BUCKET
         AWS_S3_BUCKET_ENDPOINT
         AWS_S3_URI
