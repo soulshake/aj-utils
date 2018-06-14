@@ -1,9 +1,13 @@
 #!/bin/bash
 
+activate_connection() {
+    conn="$1"
+}
+
 case "$1" in
 show)
     shift
-    if [ -z $1 ]; then
+    if [ -z "$1" ]; then
         nmcli connection show --active
     else
         nmcli connection show "$1"
@@ -18,7 +22,7 @@ edit)
 down)
     shift
     echo "Putting down $1"
-    if [ -z $1 ]; then
+    if [ -z "$1" ]; then
         nmcli connection show --active \
             | tail -n1 \
             | awk '{print $3}' \
@@ -27,7 +31,7 @@ down)
     fi
     ;;
 help)
-    echo $SSID $PSD
+    echo "$SSID" "$PSD"
     echo "$0 [show|edit|down]"
     ;;
 tui)
@@ -42,15 +46,28 @@ tui)
         exit 0
     fi
 
-    if [ -n "$PSK" ]; then
-        echo "Adding SSID $SSID with PSK $PSK..."
-        nmcli dev wifi connect "$SSID" password "$PSK"
+    if [ -e "/etc/NetworkManager/system-connections/$SSID" ]; then
+        echo "Found existing network:"
+        sudo egrep '^ssid=|^psk=' "/etc/NetworkManager/system-connections/$SSID"
+        conn="$(nmcli conn | grep -i "${SSID}" | head -n1 | awk '{print $1}')"
+
+        if [ -z "$PSK" ]; then
+            echo "Activating conn ${conn} (SSID $SSID) with no key..."
+            nmcli conn up "$conn"
+        else
+            echo "key was provided; adding new connection!"
+        fi
     fi
 
     if [ -z "$PSK" ]; then
         echo "Adding SSID $SSID with no key..."
         nmcli dev wifi connect "$SSID"
     fi
+    if [ -n "$PSK" ]; then
+        echo "Adding SSID $SSID with PSK $PSK..."
+        nmcli dev wifi connect "$SSID" password "$PSK"
+    fi
+
     ;;
 esac
 
