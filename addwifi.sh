@@ -30,9 +30,13 @@ down)
     exit $?
   fi
   ;;
-help)
+scan)
+    sudo iw "$(iw dev | awk '$1=="Interface"{print $2}')" scan | egrep -i '^bss|signal|freq: ' | tr -d '\n' | sed 's/BSS/\nBSS/g' | sort -k 7 | grep 'freq: 5' | head -n3
+    sudo iw "$(iw dev | awk '$1=="Interface"{print $2}')" scan | egrep -i '^bss|signal|freq: ' | tr -d '\n' | sed 's/BSS/\nBSS/g' | sort -k 7 | grep 'freq: 2' | head -n3
+  ;;
+help|--help)
   echo "$SSID" "$PSD"
-  echo "$0 [show|edit|down]"
+  echo "$0 [show|edit|tui|down|scan]"
   ;;
 tui)
   nmtui
@@ -70,5 +74,3 @@ tui)
 
   ;;
 esac
-
-echo "done"
