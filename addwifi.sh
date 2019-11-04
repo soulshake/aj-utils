@@ -31,8 +31,16 @@ down)
   fi
   ;;
 scan)
-    sudo iw "$(iw dev | awk '$1=="Interface"{print $2}')" scan | egrep -i '^bss|signal|freq: ' | tr -d '\n' | sed 's/BSS/\nBSS/g' | sort -k 7 | grep 'freq: 5' | head -n3
-    sudo iw "$(iw dev | awk '$1=="Interface"{print $2}')" scan | egrep -i '^bss|signal|freq: ' | tr -d '\n' | sed 's/BSS/\nBSS/g' | sort -k 7 | grep 'freq: 2' | head -n3
+    interface="$(iw dev | awk '$1=="Interface"{print $2}')"
+    ap="$(iwconfig wlan0 | grep Access | awk '$1=="Mode:Managed"{print $6}')"
+    essid="$(iwconfig wlan0 | awk '$1=="wlan0"{print $4}')"
+    echo "=== current ==="
+    echo "    ${ap}    ${interface}    ${essid}"
+    echo "=== freq: 5 ==="
+    sudo iw "${interface}" scan | egrep -i '^bss|signal|freq: ' | tr -d '\n' | sed 's/BSS/\nBSS/g' | sort -k 7 | grep 'freq: 5' | head -n3
+    echo "== freq: 2.4 =="
+    sudo iw "${interface}" scan | egrep -i '^bss|signal|freq: ' | tr -d '\n' | sed 's/BSS/\nBSS/g' | sort -k 7 | grep 'freq: 2' | head -n3
+    echo "To edit, run `nmtui`"
   ;;
 help|--help)
   echo "$SSID" "$PSD"
