@@ -1,0 +1,14 @@
+#!/bin/bash
+# Adapted from https://stackoverflow.com/a/47543571/1991403
+# Disables push -f in favor of --force-with-lease
+
+for arg in "$@"; do
+    if [ "$arg" = "push" ]; then
+        ispush=1
+    elif [ "$ispush" = 1 ] && [ "$arg" = '-f' ]; then
+        echo "BAD: use git push --force-with-lease instead" >&2
+        exit 1
+    fi
+done
+
+/usr/bin/git "$@"
