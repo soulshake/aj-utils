@@ -12,3 +12,5 @@ echo ' Bold            $(tput bold)'
 echo ' Underline       $(tput sgr 0 1)'
 echo ' Reset           $(tput sgr0)'
 echo
+
+curl -s https://gist.githubusercontent.com/HaleTom/89ffe32783f89f403bba96bd7bcd1263/raw/ | bash
