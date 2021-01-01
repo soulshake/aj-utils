@@ -18,7 +18,7 @@
 # this in the first place.  The -C flag allows you to define a
 # character to toggle this mode off and on.
 
-set force_conservative 0  ;# set to 1 to force conservative mode even if
+set force_conservative 1  ;# set to 1 to force conservative mode even if
 			  ;# script wasn't run conservatively originally
 if {$force_conservative} {
 	set send_slow {1 .1}
@@ -45,25 +45,49 @@ if {$force_conservative} {
 set timeout -1
 match_max 100000
 
+set profiles $argv
+
 proc gettoken { } {
     set TOKEN [exec oathtool --base32 --totp $::env(AWS_TOTP_SECRET)]
     return "$TOKEN"
 }
 
-puts $argv
+foreach profile $profiles { ;
+    set ACCOUNT_ID $::env(AWS_ACCOUNT_ID)
+    set USERNAME $::env(AWS_IAM_USER)
+    set count 1
+    set sleep_duration 3
+    while true {
+        set token [gettoken]
+        send_user "\nPROFILE ---------> $profile $token (attempt #$count)\n"
+        spawn aws --profile $profile sts get-caller-identity
 
-set profiles $argv
-set ACCOUNT_ID $::env(AWS_ACCOUNT_ID)
-set USERNAME $::env(AWS_IAM_USER)
-foreach x $profiles { ;
-    set TOKEN [gettoken]
-    puts "\r\n$x token: $TOKEN\r"
-    spawn aws --profile $x sts get-caller-identity
-    expect {
-        "Enter MFA code for arn:aws:iam::$ACCOUNT_ID:mfa/$USERNAME: " {
-            send -- "$TOKEN\r"
+        expect {
+            "Enter MFA code for arn:aws:iam::$ACCOUNT_ID:mfa/$USERNAME: " {
+                send -- "$token\r"
+                expect {
+                    "*failed with invalid MFA one time pass code.*" {
+                        set tosleep "[expr $sleep_duration * $count]"
+                        send -- "oops: invalid code, sleeping $tosleep and trying again\r"
+                        sleep $tosleep
+                    }
+                }
+                "*$ACCOUNT_ID*?" {
+                    send_user "$profile successfully authenticated!\n"
+                    break
+                }
+            }
+            "*$ACCOUNT_ID*?" {
+                send_user "$profile already OK!\n"
+                break
+            }
         }
-        "*$ACCOUNT_ID?" { send -- "already ok\r" }
+
+        incr count
+        if {$count >= 5} {
+            send_error "ERROR: Giving up on profile $profile after $count tries\n"
+            break
+        }
+        sleep 1
     }
-    expect eof
 }
