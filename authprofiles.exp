@@ -71,10 +71,10 @@ foreach profile $profiles { ;
                         send -- "oops: invalid code, sleeping $tosleep and trying again\r"
                         sleep $tosleep
                     }
-                }
-                "*$ACCOUNT_ID*?" {
-                    send_user "$profile successfully authenticated!\n"
-                    break
+                    "*$ACCOUNT_ID*?" {
+                        send_user "$profile successfully authenticated!\n"
+                        break
+                    }
                 }
             }
             "*$ACCOUNT_ID*?" {
