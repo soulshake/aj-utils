@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+# set -e
 
 #	screen-backlight
 #		Adjust the screen brightness of all monitors.
@@ -10,22 +10,27 @@ set -e
 #   Adapted from:
 #       https://github.com/jessfraz/dotfiles/blob/master/bin/screen-backlight
 
-
-if [ $UID -ne 0 ]; then
-	echo "Please run this program as superuser"
-	exit 1
-fi
+# if [ $UID -ne 0 ]; then
+# echo "Please run this program as superuser"
+# exit 1
+# fi
 
 BLFILES=$(ls /sys/class/backlight/*/brightness)
 MONITORS=$(xrandr --listactivemonitors \
-            | grep -v Monitors \
-            | grep -v eDP \
-            |  awk '{print $2}' \
-            | cut -d "+" -f 2)
-INCREMENT=100
+    | grep -v Monitors \
+    | grep -v eDP \
+    | awk '{print $2}' \
+    | cut -d "+" -f 2)
+INCREMENT=10
 MIN=1
 
+if [ -z "${BLFILES}" ]; then
+    echo "Nothing in /sys/class/backlight/*/brightness!"
+    exit 1
+fi
+
 for BLFILE in "$BLFILES"; do
+    echo "$BLFILE"
     BACKLIGHT=$(cat "$BLFILE")
     BLDIR=$(dirname $BLFILE)
     MAX=$(cat "$BLDIR/max_brightness")
@@ -35,34 +40,36 @@ for BLFILE in "$BLFILES"; do
 
     case $1 in
 
-        up)
-            TOTAL=`expr $BACKLIGHT + $INCREMENT`
-            if [ "$TOTAL" -gt "$MAX" ]; then
-                TOTAL="$MAX"
-            fi
-            ;;
-        down)
-            TOTAL=`expr $BACKLIGHT - $INCREMENT`
-            if [ $TOTAL -lt "$MIN" ]; then
-                echo "Can't decrease further"
-                exit 1
-            fi
-            ;;
-        max)
+    up)
+        TOTAL=$(expr $BACKLIGHT + $INCREMENT)
+        if [ "$TOTAL" -gt "$MAX" ]; then
             TOTAL="$MAX"
-            ;;
-        min)
-            TOTAL="$MIN"
-            ;;
-        *)
-            echo "Usage: screen-backlight up|down|max|min"
-            exit
-            ;;
+        fi
+        ;;
+    down)
+        TOTAL=$(expr $BACKLIGHT - $INCREMENT)
+        if [ $TOTAL -lt "$MIN" ]; then
+            echo "BACKLIGHT $BACKLIGHT"
+            echo "INCREMENT $INCREMENT"
+            echo "Can't decrease further, $TOTAL < $MIN"
+            exit 1
+        fi
+        ;;
+    max)
+        TOTAL="$MAX"
+        ;;
+    min)
+        TOTAL="$MIN"
+        ;;
+    *)
+        echo "Usage: screen-backlight up|down|max|min"
+        exit
+        ;;
     esac
 
     # Write new screen brightness level to the appropriate file.
     echo "Screen brightness will be set to: $TOTAL"
-    echo "$TOTAL" > $BLFILE
+    echo "$TOTAL" | sudo tee $BLFILE
     EX_TOTAL=$(python -c "print format($TOTAL / $MAX.0 + 0.5, '.1f')")
     for MONITOR in "$MONITORS"; do
         [ -n "$EX_TOTAL" ] && xrandr --output "$MONITOR" --brightness "$EX_TOTAL"

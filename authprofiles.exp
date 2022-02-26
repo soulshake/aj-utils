@@ -56,24 +56,54 @@ foreach profile $profiles { ;
     set ACCOUNT_ID $::env(AWS_ACCOUNT_ID)
     set USERNAME $::env(AWS_IAM_USER)
     set count 1
-    set sleep_duration 3
+    set sleep_duration 30
     while true {
         set token [gettoken]
+        set tosleep "[expr $sleep_duration * $count]"
         send_user "\nPROFILE ---------> $profile $token (attempt #$count)\n"
-        spawn aws --profile $profile sts get-caller-identity
+        send_user "sleeping $tosleep..."
+        # spawn aws --profile $profile sts get-caller-identity
+        spawn aws --profile abowen sts get-session-token --serial-number arn:aws:iam::$ACCOUNT_ID:mfa/$USERNAME --token-code $token
+        sleep $tosleep
 
         expect {
             "Enter MFA code for arn:aws:iam::$ACCOUNT_ID:mfa/$USERNAME: " {
                 send -- "$token\r"
                 expect {
-                    "*failed with invalid MFA one time pass code.*" {
+                    "*Please verify your MFA serial number*" {
+                        # An error occurred (AccessDenied) when calling the GetSessionToken operation: MultiFactorAuthentication failed, unable to validate MFA code.  Please verify your MFA serial number is valid and associated with this user.
                         set tosleep "[expr $sleep_duration * $count]"
-                        send -- "oops: invalid code, sleeping $tosleep and trying again\r"
+                        send_user -- "SADNESS: invalid code, sleeping $tosleep and trying again\r"
+                        sleep $tosleep
+
+                    }
+                    "*MultiFactorAuthentication failed with invalid MFA one time pass code.*" {
+                        # An error occurred (AccessDenied) when calling the GetSessionToken operation: MultiFactorAuthentication failed with invalid MFA one time pass code. 
+                        # Happens with get-session-token
+                        set tosleep "[expr $sleep_duration * $count]"
+                        send_user -- "OOPSIE: invalid code, sleeping $tosleep and trying again\r"
+                        sleep $tosleep
+                    }
+                    "*failed with invalid MFA one time pass code.*" {
+                        # An error occurred (AccessDenied) when calling the AssumeRole operation: MultiFactorAuthentication failed with invalid MFA one time pass code. 
+                        # Happens with sts get-caller-identity
+                        set tosleep "[expr $sleep_duration * $count]"
+                        send_user -- "OOPS: invalid code, sleeping $tosleep and trying again\r"
+                        sleep $tosleep
+                    }
+                    "*unable to validate MFA code.*" {
+                        set tosleep "[expr $sleep_duration * $count]"
+                        send_user -- "OOPSY DAISY: invalid code, sleeping $tosleep and trying again\r"
                         sleep $tosleep
                     }
                     "*$ACCOUNT_ID*?" {
-                        send_user "$profile successfully authenticated!\n"
+                        send_user "$profile successfully authenticated! Sleeping 30.\n"
+                        sleep 30
                         break
+                    }
+                    "*" {
+                        send_user "idkwtf"
+                        sleep $tosleep
                     }
                 }
             }
@@ -84,7 +114,7 @@ foreach profile $profiles { ;
         }
 
         incr count
-        if {$count >= 5} {
+        if {$count >= 1} {
             send_error "ERROR: Giving up on profile $profile after $count tries\n"
             break
         }
