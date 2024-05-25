@@ -1,0 +1,6 @@
+#!/bin/sh
+# This script will run nload to show current network usage
+
+# h/t JP 4/27/2024
+IFACE=$(ip -j route get 1.1.1.1 | jq -r .[0].dev)
+nload -i 30000 -o 30000 "${IFACE}"
