@@ -12,3 +12,5 @@ xinput list \
     | grep -v 'Consumer Control' \
     | awk -F'[=\t]' '{ print $3 }' \
     | xargs -I{} xinput --disable {}
+
+/usr/bin/autokey
